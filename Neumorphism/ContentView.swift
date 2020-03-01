@@ -65,12 +65,14 @@ struct DarkBackground<S: Shape>: View {
         ZStack {
             if isHighlighted {
                 shape
-                    .fill(Color.darkEnd)
+                    .fill(LinearGradient(Color.darkEnd, Color.darkStart))
+                    .overlay(shape.stroke(LinearGradient(Color.darkStart, Color.darkEnd), lineWidth: 4))
                     .shadow(color: Color.darkStart, radius: 10, x: 5, y: 5)
                     .shadow(color: Color.darkEnd, radius: 10, x: -5, y: -5)
             } else {
                 shape
-                    .fill(Color.darkEnd)
+                    .fill(LinearGradient(Color.darkStart, Color.darkEnd))
+                    .overlay(shape.stroke(Color.darkEnd, lineWidth: 4))
                     .shadow(color: Color.darkStart, radius: 10, x: -10, y: -10)
                     .shadow(color: Color.darkEnd, radius: 10, x: 10, y: 10)
                 
@@ -87,10 +89,28 @@ struct DarkButtonStyle: ButtonStyle {
         .background(
             DarkBackground(isHighlighted: configuration.isPressed, shape: Circle())
         )
+        .animation(nil)
+    }
+}
+
+struct DarkToggleStyle: ToggleStyle {
+    func makeBody(configuration: Self.Configuration) -> some View {
+        Button(action: {
+            configuration.isOn.toggle()
+        }) {
+            configuration.label
+            .padding(30)
+            .contentShape(Circle())
+        }
+    .background(
+        DarkBackground(isHighlighted: configuration.isOn, shape: Circle())
+        )
     }
 }
 
 struct ContentView: View {
+    @State private var isToggled = false
+    
     var body: some View {
         ZStack {
             LinearGradient(Color.darkStart, Color.darkEnd)
@@ -101,14 +121,23 @@ struct ContentView: View {
 //                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 10, y: 10)
 //                .shadow(color: Color.white.opacity(0.7), radius: 10, x: -5, y: -5)
             
-            Button(action: {
-                print("button tapped")
-            }) {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.gray)
+            
+            VStack(spacing: 40.0) {
+                Button(action: {
+                    print("button tapped")
+                }) {
+                    Image(systemName: "heart.fill")
+                        .foregroundColor(.white)
+                    
+                }
+                .buttonStyle(DarkButtonStyle())
                 
+                Toggle(isOn: $isToggled) {
+                    Image(systemName: "heart.fill")
+                        .foregroundColor(.white)
+                }
+            .toggleStyle(DarkToggleStyle())
             }
-        .buttonStyle(DarkButtonStyle())
             
         }
         .edgesIgnoringSafeArea(.all)
