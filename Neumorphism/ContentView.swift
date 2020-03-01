@@ -11,6 +11,9 @@ import SwiftUI
 extension Color {
     // Slightly off white
     static let offWhite = Color(red: 225/255, green: 225/255, blue: 235/255)
+    
+    static let darkStart = Color(red: 50/255, green: 60/255, blue: 65/255)
+    static let darkEnd = Color(red: 25/255, green: 25/255, blue: 30/255)
 }
 
 extension LinearGradient {
@@ -54,10 +57,43 @@ struct SimpleButtonStyle: ButtonStyle {
     }
 }
 
+struct DarkBackground<S: Shape>: View {
+    var isHighlighted: Bool
+    var shape: S
+    
+    var body: some View {
+        ZStack {
+            if isHighlighted {
+                shape
+                    .fill(Color.darkEnd)
+                    .shadow(color: Color.darkStart, radius: 10, x: 5, y: 5)
+                    .shadow(color: Color.darkEnd, radius: 10, x: -5, y: -5)
+            } else {
+                shape
+                    .fill(Color.darkEnd)
+                    .shadow(color: Color.darkStart, radius: 10, x: -10, y: -10)
+                    .shadow(color: Color.darkEnd, radius: 10, x: 10, y: 10)
+                
+            }
+        }
+    }
+}
+
+struct DarkButtonStyle: ButtonStyle {
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+        .padding(30)
+        .contentShape(Circle())
+        .background(
+            DarkBackground(isHighlighted: configuration.isPressed, shape: Circle())
+        )
+    }
+}
+
 struct ContentView: View {
     var body: some View {
         ZStack {
-            Color.offWhite
+            LinearGradient(Color.darkStart, Color.darkEnd)
             
 //            RoundedRectangle(cornerRadius: 25)
 //                .fill(Color.offWhite)
@@ -72,7 +108,7 @@ struct ContentView: View {
                     .foregroundColor(.gray)
                 
             }
-        .buttonStyle(SimpleButtonStyle())
+        .buttonStyle(DarkButtonStyle())
             
         }
         .edgesIgnoringSafeArea(.all)
